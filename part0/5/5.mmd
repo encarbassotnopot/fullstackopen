@@ -1,0 +1,16 @@
+sequenceDiagram
+  participant browser as browser
+  participant server as server
+
+  browser ->>+ server: GET /exampleapp/spa
+  server -->>- browser: HTML document
+  browser ->>+ server: GET /exampleapp/main.css
+  server -->>- browser: the css file
+  browser ->>+ server: GET /exampleapp/spa.js
+  server -->>- browser: the JavaScript file
+  Note over browser: The browser starts executing the JS code<br>that fetches the JSON from the server
+  browser ->>+ server: GET /exampleapp/data.json
+  server -->>- browser: [ ..., { "content": "My note", "date": "2025-08-11" }]
+  Note over browser: The browser executes the callback<br>function that renders the notes
+
+

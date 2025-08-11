@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant browser as browser
+  participant server as server
+
+  browser ->>+ server: POST /exampleapp/new_note
+  Note over browser: Submints a new note<br>with `note: My note`
+  server -->>- browser: HTTP 302: redirects to /exampleapp/notes
+  browser ->>+ server: GET /exampleapp/notes
+  server -->>- browser: HTML document
+  browser ->>+ server: GET /exampleapp/main.css
+  server -->>- browser: the css file
+  browser ->>+ server: GET /exampleapp/main.js
+  server -->>- browser: the JavaScript file
+  Note over browser: The browser starts executing the JS code<br>that fetches the JSON from the server
+  browser ->>+ server: GET /exampleapp/data.json
+  server -->>- browser: [ ..., { "content": "My note", "date": "2025-08-11" }]
+  Note over browser: The browser executes the callback<br>function that renders the notes
+
+
