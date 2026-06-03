@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { addEntry, updateEntry } from "../services/phonebookService";
 
 export const PersonForm = (props) => {
 	const { persons, setPersons } = props;
@@ -14,18 +15,31 @@ export const PersonForm = (props) => {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
+		const newPerson = {
+			name: newName,
+			num: newNum,
+		};
 
-		if (persons.some((p) => p.name === newName))
-			alert(`${newName} is already added to phonebook`);
-		else {
-			const newPerson = {
-				name: newName,
-				num: newNum,
-				id: persons.length + 1,
-			};
+		if (persons.some((p) => p.name === newName)) {
+			newPerson.id = persons.find((p) => p.name === newName).id;
+			if (
+				confirm(
+					`${newName} is already added to phonebook. Do you want to update their phone number?`
+				)
+			) {
+				updateEntry(newPerson).then((updEntry) =>
+					setPersons(
+						persons.map((p) =>
+							p.id === updEntry.id ? updEntry : p
+						)
+					)
+				);
+			}
+		} else
+			addEntry(newPerson).then((newEntry) =>
+				setPersons(persons.concat(newEntry))
+			);
 
-			setPersons(persons.concat(newPerson));
-		}
 		setNewName("");
 		setNewNum("");
 	};
@@ -44,3 +58,5 @@ export const PersonForm = (props) => {
 		</form>
 	);
 };
+
+export default PersonForm;

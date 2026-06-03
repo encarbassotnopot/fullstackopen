@@ -1,9 +1,10 @@
-export const Filter = (props) => {
+const Filter = (props) => {
 	const { filterText, setFilterText } = props;
 
 	const handleFilterChange = (event) => {
 		setFilterText(event.target.value);
 	};
+
 	return (
 		<div>
 			filter shown with:{" "}
@@ -11,3 +12,5 @@ export const Filter = (props) => {
 		</div>
 	);
 };
+
+export default Filter;

@@ -1,21 +1,16 @@
-import { useState } from "react";
-import { PersonForm } from "./components/PersonForm";
-import { Numbers } from "./components/Numbers";
-import { Filter } from "./components/Filter";
+import { useState, useEffect } from "react";
+import PersonForm from "./components/PersonForm";
+import Numbers from "./components/Numbers";
+import Filter from "./components/Filter";
+import { getAll } from "./services/phonebookService";
 
 const App = () => {
-	const [persons, setPersons] = useState([
-		{ name: "Arto Hellas", num: "040-123456", id: 1 },
-		{ name: "Ada Lovelace", num: "39-44-5323523", id: 2 },
-		{ name: "Dan Abramov", num: "12-43-234345", id: 3 },
-		{ name: "Mary Poppendieck", num: "39-23-6423122", id: 4 },
-	]);
-
+	const [persons, setPersons] = useState([]);
 	const [filterText, setFilterText] = useState("");
 
-	const shownPersons = persons.filter((p) =>
-		p.name.toLowerCase().includes(filterText.toLowerCase())
-	);
+	useEffect(() => {
+		getAll().then((p) => setPersons(p));
+	}, []);
 
 	return (
 		<div>
@@ -24,7 +19,11 @@ const App = () => {
 			<h2>Phonebook</h2>
 			<PersonForm persons={persons} setPersons={setPersons} />
 			<h2>Numbers</h2>
-			<Numbers persons={shownPersons} />
+			<Numbers
+				filterText={filterText}
+				persons={persons}
+				setPersons={setPersons}
+			/>
 		</div>
 	);
 };
