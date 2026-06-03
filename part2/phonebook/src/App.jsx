@@ -19,6 +19,7 @@ const App = () => {
 	};
 
 	useEffect(() => {
+		if (!notification) return;
 		const timeout = setTimeout(() => setNotification(null), 5000);
 		return () => clearTimeout(timeout);
 	}, [notification]);
