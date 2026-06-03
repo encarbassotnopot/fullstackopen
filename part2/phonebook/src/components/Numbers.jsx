@@ -11,17 +11,27 @@ const Person = (props) => {
 	);
 };
 
-export const Numbers = (props) => {
-	const { persons, setPersons, filterText } = props;
+const Numbers = (props) => {
+	const { persons, setPersons, filterText, notify } = props;
+
+	if (!persons) return null;
+
 	const shownPersons = persons.filter((p) =>
 		p.name.toLowerCase().includes(filterText.toLowerCase())
 	);
 
-	const handleDelete = (p) => () => {
-		if (confirm(`do you wanna delete ${p.name}?`))
-			deleteEntry(p.id)
-				.then(setPersons(persons.filter((per) => per.id !== p.id)))
-				.catch(() => alert(`${p.name} has already deleted`));
+	const handleDelete = (toDelete) => () => {
+		if (confirm(`do you wanna delete ${toDelete.name}?`))
+			deleteEntry(toDelete.id)
+				.then(() => {
+					notify(`${toDelete.name} has been deleted`, "ok");
+				})
+				.catch(() =>
+					notify(`${toDelete.name} has already been deleted`, "error")
+				)
+				.finally(() =>
+					setPersons(persons.filter((p) => p.id !== toDelete.id))
+				);
 	};
 
 	return (

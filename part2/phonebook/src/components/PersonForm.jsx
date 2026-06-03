@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { addEntry, updateEntry } from "../services/phonebookService";
 
-export const PersonForm = (props) => {
-	const { persons, setPersons } = props;
+const PersonForm = (props) => {
+	const { persons, setPersons, notify } = props;
 	const [newName, setNewName] = useState("");
 	const [newNum, setNewNum] = useState("");
 
@@ -27,18 +27,30 @@ export const PersonForm = (props) => {
 					`${newName} is already added to phonebook. Do you want to update their phone number?`
 				)
 			) {
-				updateEntry(newPerson).then((updEntry) =>
-					setPersons(
-						persons.map((p) =>
-							p.id === updEntry.id ? updEntry : p
-						)
-					)
-				);
+				updateEntry(newPerson)
+					.then((updEntry) => {
+						setPersons(
+							persons.map((p) =>
+								p.id === updEntry.id ? updEntry : p
+							)
+						);
+						notify(
+							`${newName}'s number updated successfully`,
+							"ok"
+						);
+					})
+					.catch(() => {
+						setPersons(
+							persons.filter((p) => p.id !== newPerson.id)
+						);
+						notify(`${newName}'s information was deleted`, "error");
+					});
 			}
 		} else
-			addEntry(newPerson).then((newEntry) =>
-				setPersons(persons.concat(newEntry))
-			);
+			addEntry(newPerson).then((newEntry) => {
+				setPersons(persons.concat(newEntry));
+				notify(`${newName} has been added`, "ok");
+			});
 
 		setNewName("");
 		setNewNum("");
