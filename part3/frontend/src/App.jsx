@@ -3,7 +3,7 @@ import PersonForm from "./components/PersonForm";
 import Numbers from "./components/Numbers";
 import Filter from "./components/Filter";
 import Notification from "./components/Notification";
-import { getAll } from "./services/phonebookService";
+import { getAll } from "./services/personService";
 
 const App = () => {
 	const [persons, setPersons] = useState(null);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { addEntry, updateEntry } from "../services/phonebookService";
+import { addEntry, updateEntry } from "../services/personService";
 
 const PersonForm = (props) => {
 	const { persons, setPersons, notify } = props;
@@ -39,18 +39,20 @@ const PersonForm = (props) => {
 							"ok"
 						);
 					})
-					.catch(() => {
+					.catch((e) => {
 						setPersons(
 							persons.filter((p) => p.id !== newPerson.id)
 						);
-						notify(`${newName}'s information was deleted`, "error");
+						notify(e.response.data.error, "error");
 					});
 			}
 		} else
-			addEntry(newPerson).then((newEntry) => {
-				setPersons(persons.concat(newEntry));
-				notify(`${newName} has been added`, "ok");
-			});
+			addEntry(newPerson)
+				.then((newEntry) => {
+					setPersons(persons.concat(newEntry));
+					notify(`${newName} has been added`, "ok");
+				})
+				.catch((e) => notify(e.response.data.error, "error"));
 
 		setNewName("");
 		setNewNum("");

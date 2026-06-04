@@ -1,7 +1,7 @@
-import { deleteEntry } from "../services/phonebookService";
+import { deleteEntry } from "../services/personService";
 
 const Person = (props) => {
-	const { name, number, id } = props.person;
+	const { name, number } = props.person;
 	const { handleClick } = props;
 
 	return (
@@ -26,9 +26,7 @@ const Numbers = (props) => {
 				.then(() => {
 					notify(`${toDelete.name} has been deleted`, "ok");
 				})
-				.catch(() =>
-					notify(`${toDelete.name} has already been deleted`, "error")
-				)
+				.catch((e) => notify(e.response.data.error, "error"))
 				.finally(() =>
 					setPersons(persons.filter((p) => p.id !== toDelete.id))
 				);

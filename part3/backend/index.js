@@ -44,7 +44,7 @@ app.get("/api/persons/:id", (req, res, next) => {
 	Person.findById(req.params.id)
 		.then((person) => {
 			if (person) res.json(person);
-			else res.status(404).end();
+			else res.status(404).send({ error: "not found" });
 		})
 		.catch((err) => next(err));
 });
@@ -55,29 +55,21 @@ app.delete("/api/persons/:id", (req, res, next) => {
 		.catch((err) => next(err));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
 	const data = req.body;
-
-	if (data.name === undefined)
-		return res.status(400).json({ error: "missing name" });
-	if (data.number === undefined)
-		return res.status(400).json({ error: "missing number" });
-
 	const person = new Person({ name: data.name, number: data.number });
-	person.save().then((savedPerson) => res.json(savedPerson));
+	person
+		.save()
+		.then((savedPerson) => res.json(savedPerson))
+		.catch((err) => next(err));
 });
 
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
 	const data = req.body;
-
-	if (data.name === undefined)
-		return res.status(400).json({ error: "missing name" });
-	if (data.number === undefined)
-		return res.status(400).json({ error: "missing number" });
 
 	Person.findById(req.params.id)
 		.then((person) => {
-			if (!person) res.status(404).end();
+			if (!person) res.status(404).send({ error: "not found" });
 			person.name = data.name;
 			person.number = data.number;
 			return person.save().then((savedPerson) => res.json(savedPerson));
@@ -90,14 +82,16 @@ const unknownEndpoint = (req, res) => {
 };
 app.use(unknownEndpoint);
 
-const errorHandler = (err, req, res, next) => {
-	console.error(err.message);
+const errorHandler = (error, req, res, next) => {
+	console.error(error.message);
 
-	if (err.name === "CastError") {
+	if (error.name === "CastError") {
 		return res.status(400).send({ error: "malformatted id" });
+	} else if (error.name === "ValidationError") {
+		return res.status(400).json({ error: error.message });
 	}
 
-	next(err);
+	next(error);
 };
 app.use(errorHandler);
 
