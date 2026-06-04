@@ -1,12 +1,12 @@
 import { deleteEntry } from "../services/phonebookService";
 
 const Person = (props) => {
-	const { name, num, id } = props.person;
+	const { name, number, id } = props.person;
 	const { handleClick } = props;
 
 	return (
 		<li>
-			{name} - {num} <button onClick={handleClick}>delete</button>
+			{name} - {number} <button onClick={handleClick}>delete</button>
 		</li>
 	);
 };

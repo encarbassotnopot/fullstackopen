@@ -17,7 +17,7 @@ const PersonForm = (props) => {
 		event.preventDefault();
 		const newPerson = {
 			name: newName,
-			num: newNum,
+			number: newNum,
 		};
 
 		if (persons.some((p) => p.name === newName)) {
