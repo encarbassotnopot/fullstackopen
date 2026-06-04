@@ -39,12 +39,7 @@ const PersonForm = (props) => {
 							"ok"
 						);
 					})
-					.catch((e) => {
-						setPersons(
-							persons.filter((p) => p.id !== newPerson.id)
-						);
-						notify(e.response.data.error, "error");
-					});
+					.catch((e) => notify(e.response.data.error, "error"));
 			}
 		} else
 			addEntry(newPerson)
