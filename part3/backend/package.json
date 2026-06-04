@@ -13,7 +13,9 @@
 		"build:ui": "rm -rf dist && cd ../frontend && npm install && npm run build && cp -r dist ../backend"
 	},
 	"dependencies": {
+		"dotenv": "^17.4.2",
 		"express": "^5.2.1",
+		"mongoose": "^9.6.3",
 		"morgan": "^1.11.0"
 	}
 }
