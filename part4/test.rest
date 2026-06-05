@@ -1,9 +1,10 @@
+### malformed
 POST http://localhost:3003/api/blogs/
 Content-Type: application/json
 
 {
 	"title": "String",
-	"author": "String",
+	"author": "String"
 	"url": "String",
 	"likes": "3"
 }
