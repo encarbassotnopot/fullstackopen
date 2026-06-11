@@ -33,48 +33,132 @@ describe("with blogs already present", async () => {
 
 		assert.ok(body.every((blog) => blog.id !== undefined));
 	});
-});
 
-describe("creating new blogs", async () => {
-	test("works via POST", async () => {
-		const preCount = (await api.get("/api/blogs")).body.length;
-		const response = await api
-			.post("/api/blogs")
-			.send(helper.singleBlog)
-			.expect(201);
+	describe("creating new blogs", async () => {
+		test("works via POST", async () => {
+			const preCount = (await api.get("/api/blogs")).body.length;
+			const response = await api
+				.post("/api/blogs")
+				.send(helper.singleBlog)
+				.expect(201);
 
-		const id = response.body.id;
-		const newBlogs = (await api.get("/api/blogs")).body;
+			const id = response.body.id;
+			const newBlogs = (await api.get("/api/blogs")).body;
 
-		// check there is exactly one new blog
-		assert.strictEqual(preCount + 1, newBlogs.length);
+			// check there is exactly one new blog
+			assert.strictEqual(preCount + 1, newBlogs.length);
 
-		// check newly created blog's content
-		const newBlog = newBlogs.find((b) => b.id === id);
-		delete newBlog.id;
-		assert.deepStrictEqual(newBlog, helper.singleBlog);
+			// check newly created blog's content
+			const newBlog = newBlogs.find((b) => b.id === id);
+			delete newBlog.id;
+			assert.deepStrictEqual(newBlog, helper.singleBlog);
+		});
+
+		test("the likes property defaults 0 if not present", async () => {
+			const newBlog = helper.singleBlog;
+			delete newBlog.likes;
+
+			const response = await api
+				.post("/api/blogs")
+				.send(newBlog)
+				.expect(201);
+			assert.strictEqual(response.body.likes, 0);
+		});
+
+		test("fails and returns 400 if no title is given", async () => {
+			const noTitle = helper.singleBlog;
+			delete noTitle.title;
+
+			await api.post("/api/blogs").send(noTitle).expect(400);
+		});
+
+		test("fails and returns 400 if no url is given", async () => {
+			const noUrl = helper.singleBlog;
+			delete noUrl.title;
+
+			await api.post("/api/blogs").send(noUrl).expect(400);
+		});
 	});
 
-	test("the likes property defaults 0 if not present", async () => {
-		const newBlog = helper.singleBlog;
-		delete newBlog.likes;
+	describe("deleting blogs)", async () => {
+		test("when they exist are deleted", async () => {
+			const blogs = await helper.blogsInDb();
+			const blogToDelete = blogs[0];
 
-		const response = await api.post("/api/blogs").send(newBlog).expect(201);
-		assert.strictEqual(response.body.likes, 0);
+			await api
+				.delete(`/api/blogs/${blogToDelete.id}`)
+				.send()
+				.expect(204);
+
+			assert.strictEqual(
+				blogs.length,
+				(await helper.blogsInDb()).length + 1
+			);
+		});
+
+		test("when they don't exist returns no error", async () => {
+			const idToDelete = await helper.nonExistingId();
+
+			await api.delete(`/api/blogs/${idToDelete}`).send().expect(204);
+		});
 	});
 
-	test("fails and returns 400 if no title is given", async () => {
-		const noTitle = helper.singleBlog;
-		delete noTitle.title;
+	describe("replacing existing blogs (PUT)", async () => {
+		test("works properly for an existing entry", async () => {
+			const blogs = await helper.blogsInDb();
+			const blogToModify = blogs[0];
 
-		await api.post("/api/blogs").send(noTitle).expect(400);
-	});
+			blogToModify.title = "test";
+			blogToModify.url = "newurl.example";
+			blogToModify.likes = 1234;
 
-	test("fails and returns 400 if no url is given", async () => {
-		const noUrl = helper.singleBlog;
-		delete noUrl.title;
+			const res = await api
+				.put(`/api/blogs/${blogToModify.id}`)
+				.send(blogToModify)
+				.expect(200);
 
-		await api.post("/api/blogs").send(noUrl).expect(400);
+			assert.deepStrictEqual(blogToModify, res.body);
+		});
+
+		test("when they don't exist returns a 404 code", async () => {
+			const nonExistingId = await helper.nonExistingId();
+
+			const blogs = await helper.blogsInDb();
+			const blogToModify = blogs[0];
+
+			blogToModify.title = "test";
+			blogToModify.url = "newurl.example";
+			blogToModify.likes = 1234;
+
+			await api
+				.put(`/api/blogs/${nonExistingId}`)
+				.send(blogToModify)
+				.expect(404);
+		});
+
+		test("with an empty title fails with code 400", async () => {
+			const blogs = await helper.blogsInDb();
+			const blogToModify = blogs[0];
+
+			delete blogToModify.title;
+
+			await api
+				.put(`/api/blogs/${blogToModify.id}`)
+				.send(blogToModify)
+				.expect(400);
+		});
+
+		test("with an empty url fails with code 400", async () => {
+			const blogs = await helper.blogsInDb();
+			const blogToModify = blogs[0];
+
+			delete blogToModify.url;
+
+			await api
+				.put(`/api/blogs/${blogToModify.id}`)
+				.send(blogToModify)
+				.expect(400);
+		});
 	});
 });
 
