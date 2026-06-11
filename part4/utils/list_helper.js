@@ -37,7 +37,6 @@ const mostLikes = (blogList) => {
 			return { author: k, likes: v };
 		})
 	);
-	console.log(authorLikes);
 
 	return authorLikes.reduce((max, author) =>
 		max.likes > author.likes ? max : author

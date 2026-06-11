@@ -2,9 +2,11 @@ const { test, after, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
+const bcrypt = require("bcrypt");
 const app = require("../app");
 const helper = require("./test_helper");
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 const api = supertest(app);
 
@@ -159,6 +161,79 @@ describe("with blogs already present", async () => {
 				.send(blogToModify)
 				.expect(400);
 		});
+	});
+});
+
+describe("when there is initially one user in db", () => {
+	beforeEach(async () => {
+		await User.deleteMany({});
+
+		const passwordHash = await bcrypt.hash("password", 10);
+		const user = new User({ username: "user", passwordHash });
+
+		await user.save();
+	});
+
+	test("creation succeeds with a fresh username", async () => {
+		const usersAtStart = await helper.usersInDb();
+
+		const newUser = {
+			username: "mluukkai",
+			name: "Matti Luukkainen",
+			password: "salainen",
+		};
+
+		await api
+			.post("/api/users")
+			.send(newUser)
+			.expect(201)
+			.expect("Content-Type", /application\/json/);
+
+		const usersAtEnd = await helper.usersInDb();
+		assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1);
+
+		const usernames = usersAtEnd.map((u) => u.username);
+		assert(usernames.includes(newUser.username));
+	});
+
+	test("creation fails with a repeated username", async () => {
+		const newUser = {
+			username: "mluukkai",
+			name: "Matti Luukkainen",
+			password: "salainen",
+		};
+
+		await api.post("/api/users").send(newUser);
+		await api.post("/api/users").send(newUser).expect(400);
+	});
+
+	test("creation fails when no username is given", async () => {
+		const newUser = {
+			name: "Matti Luukkainen",
+			password: "salainen",
+		};
+
+		await api.post("/api/users").send(newUser).expect(400);
+	});
+
+	test("creation fails when a invalid username is given", async () => {
+		const newUser = {
+			username: "ml",
+			name: "Matti Luukkainen",
+			password: "salainen",
+		};
+
+		await api.post("/api/users").send(newUser).expect(400);
+	});
+
+	test("creation fails when a weak password username is given", async () => {
+		const newUser = {
+			username: "mluukkai2",
+			name: "Matti Luukkainen",
+			password: "sa",
+		};
+
+		await api.post("/api/users").send(newUser).expect(400);
 	});
 });
 
