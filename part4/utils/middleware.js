@@ -20,7 +20,7 @@ const errorHandler = (err, req, res, next) => {
 	logger.error(err.message);
 
 	if (err.name === "CastError")
-		return res.status(400).send({ error: "malformatted id" });
+		return res.status(400).json({ error: "malformatted id" });
 	else if (err.name === "ValidationError")
 		return res.status(400).json({ error: err.message });
 	else if (err.name === "SyntaxError")
@@ -29,7 +29,9 @@ const errorHandler = (err, req, res, next) => {
 		err.name === "MongoServerError" &&
 		err.message.includes("E11000 duplicate key error")
 	)
-		return res.status(400).send({ error: "username must be unique" });
+		return res.status(400).json({ error: "username must be unique" });
+	else if (err.name === "JsonWebTokenError")
+		return res.status(401).json({ error: "token invalid" });
 
 	next(err);
 };
