@@ -27,6 +27,10 @@ blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
 	const blog = await Blog.findById(req.params.id);
 
 	if (!blog) return res.status(404).end();
+	if (blog.user.toString() !== req.user.id.toString())
+		return res
+			.status(401)
+			.json({ error: "note not owned by logged in user" });
 
 	blog.title = req.body.title;
 	blog.author = req.body.author;
@@ -37,7 +41,13 @@ blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
 });
 
 blogsRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
-	await Blog.findByIdAndDelete(req.params.id);
+	const blog = await Blog.findById(req.params.id);
+	if (blog.user.toString() !== req.user.id.toString())
+		return res
+			.status(401)
+			.json({ error: "note not owned by logged in user" });
+
+	await Blog.deleteOne();
 	res.status(204).end();
 });
 
