@@ -32,12 +32,25 @@ const errorHandler = (err, req, res, next) => {
 		return res.status(400).json({ error: "username must be unique" });
 	else if (err.name === "JsonWebTokenError")
 		return res.status(401).json({ error: "token invalid" });
+	else if (err.name === "TokenExpiredError")
+		return res.status(401).json({
+			error: "token expired",
+		});
 
 	next(err);
+};
+
+const tokenExtractor = (req, res, next) => {
+	const authorization = req.get("authorization");
+	if (authorization && authorization.startsWith("Bearer "))
+		req.token = authorization.replace("Bearer ", "");
+
+	next();
 };
 
 module.exports = {
 	requestLogger,
 	unknownEndpoint,
 	errorHandler,
+	tokenExtractor,
 };
