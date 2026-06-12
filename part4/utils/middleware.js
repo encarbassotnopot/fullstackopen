@@ -9,9 +9,6 @@ const requestLogger = (req, res, next) => {
 	if (req.body) logger.info("Body:  ", req.body);
 	next();
 };
-const unknownEndpoint = (req, res) => {
-	res.status(404).send({ error: "unknown endpoint" });
-};
 
 const errorHandler = (err, req, res, next) => {
 	logger.error("---");
@@ -40,6 +37,10 @@ const errorHandler = (err, req, res, next) => {
 		});
 
 	next(err);
+};
+
+const unknownEndpoint = (req, res) => {
+	res.status(404).send({ error: "unknown endpoint" });
 };
 
 const tokenExtractor = (req, res, next) => {

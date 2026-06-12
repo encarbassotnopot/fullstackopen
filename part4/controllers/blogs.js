@@ -42,6 +42,7 @@ blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
 
 blogsRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
 	const blog = await Blog.findById(req.params.id);
+	if (!blog) return res.status(204).end();
 	if (blog.user.toString() !== req.user.id.toString())
 		return res
 			.status(401)

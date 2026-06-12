@@ -39,12 +39,14 @@ const singleBlog = {
 	author: "Edsger W. Dijkstra",
 	url: "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
 	likes: 5,
+	user: "0",
 };
 
 const nonExistingId = async () => {
-	const blog = new Blog({
+	const blog = await new Blog({
 		title: "title",
 		url: "url.example",
+		user: (await usersInDb())[0].id,
 	});
 	await blog.save();
 	await blog.deleteOne();
@@ -53,12 +55,19 @@ const nonExistingId = async () => {
 };
 
 const blogsInDb = async () => {
-	const blogs = await Blog.find({});
+	const blogs = await Blog.find({}).populate("user", {
+		username: 1,
+		name: 1,
+	});
 	return blogs.map((b) => b.toJSON());
 };
 
 const usersInDb = async () => {
-	const users = await User.find({});
+	const users = await User.find({}).populate("blogs", {
+		title: 1,
+		author: 1,
+		url: 1,
+	});
 	return users.map((u) => u.toJSON());
 };
 
