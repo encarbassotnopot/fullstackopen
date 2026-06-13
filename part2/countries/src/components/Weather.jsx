@@ -14,7 +14,7 @@ const Weather = (props) => {
 				`${WEATHER_API}?appid=${import.meta.env.VITE_OWM_KEY}&lat=${lat}&lon=${lon}&units=metric`
 			)
 			.then((r) => setWeather(r.data));
-	}, [country]);
+	}, [lat, lon]);
 
 	if (weather)
 		return (
