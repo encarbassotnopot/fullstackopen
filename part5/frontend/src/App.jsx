@@ -77,9 +77,17 @@ const App = () => {
 				<button onClick={handleLogout}>logout</button>
 			</p>
 			<AddBlog setNotification={setNotification} setBlogs={setBlogs} />
-			{blogs.map((blog) => (
-				<Blog key={blog.id} blog={blog} />
-			))}
+			{blogs
+				.sort((a, b) => b.likes - a.likes)
+				.map((blog) => (
+					<Blog
+						key={blog.id}
+						user={user}
+						blog={blog}
+						setBlogs={setBlogs}
+						setNotification={setNotification}
+					/>
+				))}
 		</div>
 	);
 };
