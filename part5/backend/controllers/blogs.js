@@ -20,7 +20,12 @@ blogsRouter.post("/", middleware.userExtractor, async (req, res) => {
 	req.user.blogs = req.user.blogs.concat(result._id);
 	await req.user.save();
 
-	res.status(201).json(result);
+	res.status(201).json(
+		await result.populate("user", {
+			username: 1,
+			name: 1,
+		})
+	);
 });
 
 blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
@@ -37,7 +42,14 @@ blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
 	blog.url = req.body.url;
 	blog.likes = req.body.likes;
 
-	res.json(await blog.save());
+	await blog.save();
+
+	res.json(
+		await blog.populate("user", {
+			username: 1,
+			name: 1,
+		})
+	);
 });
 
 blogsRouter.delete("/:id", middleware.userExtractor, async (req, res) => {
