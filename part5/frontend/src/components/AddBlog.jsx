@@ -1,7 +1,6 @@
 import { useState } from "react";
-import blogService from "../services/blogs";
 
-const AddBlog = ({ setNotification, setBlogs }) => {
+const AddBlog = ({ createBlog }) => {
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState("");
 	const [url, setUrl] = useState("");
@@ -9,32 +8,23 @@ const AddBlog = ({ setNotification, setBlogs }) => {
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		try {
-			const newBlog = await blogService.create({ title, author, url });
-			setTitle("");
-			setAuthor("");
-			setUrl("");
-
-			setBlogs((blogs) => blogs.concat(newBlog));
-
-			setNotification({
-				type: "ok",
-				text: `a new blog ${newBlog.title} by ${newBlog.author} added`,
-			});
-		} catch {
-			setNotification({ type: "error", text: "cannot add entry" });
-		}
+		const newBlog = { title, author, url };
+		await createBlog(newBlog);
+		setTitle("");
+		setAuthor("");
+		setUrl("");
+		setVisible(false);
 	};
 
-	const hideWhenVisible = { display: visible ? "none" : "" };
-	const showWhenVisible = { display: visible ? "" : "none" };
-
-	return (
-		<>
-			<div style={hideWhenVisible}>
+	if (!visible)
+		return (
+			<div>
 				<button onClick={() => setVisible(true)}>add new blog</button>
 			</div>
-			<div style={showWhenVisible}>
+		);
+	else
+		return (
+			<div>
 				<h2>add new blog</h2>
 				<form onSubmit={handleSubmit}>
 					<div>
@@ -71,8 +61,7 @@ const AddBlog = ({ setNotification, setBlogs }) => {
 				</form>
 				<button onClick={() => setVisible(false)}>cancel</button>
 			</div>
-		</>
-	);
+		);
 };
 
 export default AddBlog;

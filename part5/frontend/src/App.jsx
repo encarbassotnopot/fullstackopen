@@ -52,6 +52,21 @@ const App = () => {
 		setUser(null);
 	};
 
+	const createBlog = async (blog) => {
+		try {
+			const newBlog = await blogService.create(blog);
+
+			setBlogs((blogs) => blogs.concat(newBlog));
+
+			setNotification({
+				type: "ok",
+				text: `a new blog ${newBlog.title} by ${newBlog.author} added`,
+			});
+		} catch {
+			setNotification({ type: "error", text: "cannot add entry" });
+		}
+	};
+
 	const handleLike = async (blog) => {
 		const updBlog = { ...blog, likes: blog.likes + 1 };
 		try {
@@ -104,7 +119,7 @@ const App = () => {
 				{user.name} logged in{" "}
 				<button onClick={handleLogout}>logout</button>
 			</p>
-			<AddBlog setNotification={setNotification} setBlogs={setBlogs} />
+			<AddBlog createBlog={createBlog} />
 			{blogs
 				.sort((a, b) => b.likes - a.likes)
 				.map((blog) => (
