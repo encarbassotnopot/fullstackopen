@@ -11,10 +11,6 @@ const Blog = ({ user, blog, setBlogs, setNotification }) => {
 		marginBottom: 5,
 	};
 
-	const willHideStyle = {
-		display: hidden ? "none" : "",
-	};
-
 	const handleLike = async () => {
 		const updBlog = { ...blog, likes: blog.likes + 1 };
 		try {
@@ -48,19 +44,26 @@ const Blog = ({ user, blog, setBlogs, setNotification }) => {
 			return <button onClick={handleDelete}>remove</button>;
 	};
 
+	const moreDetails = () => {
+		if (!hidden)
+			return (
+				<div>
+					<div>{blog.url}</div>
+					<div>
+						Likes {blog.likes}{" "}
+						<button onClick={handleLike}>like</button>
+					</div>
+					<div>{blog.user.name}</div>
+					{deleteButton()}
+				</div>
+			);
+	};
+
 	return (
 		<div style={blogStyle}>
 			{blog.title} {blog.author}{" "}
 			<button onClick={() => setHidden((value) => !value)}>view</button>
-			<div style={willHideStyle}>
-				<div>{blog.url}</div>
-				<div>
-					Likes {blog.likes}{" "}
-					<button onClick={handleLike}>like</button>
-				</div>
-				<div>{blog.user.name}</div>
-				{deleteButton()}
-			</div>
+			{moreDetails()}
 		</div>
 	);
 };
