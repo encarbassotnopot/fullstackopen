@@ -52,6 +52,34 @@ const App = () => {
 		setUser(null);
 	};
 
+	const handleLike = async (blog) => {
+		const updBlog = { ...blog, likes: blog.likes + 1 };
+		try {
+			const res = await blogService.update(updBlog);
+			setBlogs((blogs) =>
+				blogs.map((b) => {
+					if (b.id !== blog.id) return b;
+					else return res;
+				})
+			);
+		} catch {
+			setNotification({ type: "error", text: "could not like post" });
+		}
+	};
+
+	const handleDelete = async (blog) => {
+		if (confirm(`Delete ${blog.title} by ${blog.author}?`))
+			try {
+				await blogService.deleteBlog(blog.id);
+				setBlogs((blogs) => blogs.filter((b) => b.id !== blog.id));
+			} catch {
+				setNotification({
+					type: "error",
+					text: "could not delete post",
+				});
+			}
+	};
+
 	if (user === null) {
 		return (
 			<div>
@@ -84,8 +112,8 @@ const App = () => {
 						key={blog.id}
 						user={user}
 						blog={blog}
-						setBlogs={setBlogs}
-						setNotification={setNotification}
+						handleLike={handleLike}
+						handleDelete={handleDelete}
 					/>
 				))}
 		</div>
