@@ -31,7 +31,7 @@ const Blog = ({ user, blog, handleLike, handleDelete }) => {
 	};
 
 	return (
-		<div style={blogStyle}>
+		<div style={blogStyle} className="blog-item">
 			{blog.title} {blog.author}{" "}
 			<button onClick={() => setHidden((value) => !value)}>view</button>
 			{moreDetails()}
