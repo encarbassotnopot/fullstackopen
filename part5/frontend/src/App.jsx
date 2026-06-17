@@ -5,7 +5,8 @@ import AddBlog from "./components/AddBlog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom";
+import Blog from "./components/Blog";
 
 const App = () => {
 	const [blogs, setBlogs] = useState([]);
@@ -31,6 +32,9 @@ const App = () => {
 			setUser(user);
 		}
 	}, []);
+
+	const match = useMatch("/blogs/:id");
+	const blog = match ? blogs.find((b) => b.id === match.params.id) : null;
 
 	const handleLogin = async (username, password) => {
 		try {
@@ -65,6 +69,7 @@ const App = () => {
 		} catch {
 			setNotification({ type: "error", text: "cannot add entry" });
 		}
+		navigate("/");
 	};
 
 	const handleLike = async (blog) => {
@@ -93,6 +98,7 @@ const App = () => {
 					text: "could not delete post",
 				});
 			}
+		navigate("/");
 	};
 
 	const padding = {
@@ -105,9 +111,11 @@ const App = () => {
 				<Link style={padding} to="/">
 					blogs
 				</Link>
-				{/* <Link style={padding} to="/create">
-					new blog
-				</Link> */}
+				{user && (
+					<Link style={padding} to="/create">
+						new blog
+					</Link>
+				)}
 				{user ? (
 					<button onClick={handleLogout}>logout</button>
 				) : (
@@ -119,12 +127,13 @@ const App = () => {
 
 			<Notification content={notification} />
 			<Routes>
+				<Route path="/" element={<BlogList blogs={blogs} />} />
 				<Route
-					path="/"
+					path="/blogs/:id"
 					element={
-						<BlogList
+						<Blog
+							blog={blog}
 							user={user}
-							blogs={blogs}
 							handleLike={handleLike}
 							handleDelete={handleDelete}
 						/>

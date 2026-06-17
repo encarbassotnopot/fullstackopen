@@ -32,11 +32,8 @@ blogsRouter.put("/:id", middleware.userExtractor, async (req, res) => {
 	const blog = await Blog.findById(req.params.id);
 
 	if (!blog) return res.status(404).end();
-	// commented to allow liking posts not owned by the current user
-	// if (blog.user.toString() !== req.user.id.toString())
-	// 	return res
-	// 		.status(401)
-	// 		.json({ error: "note not owned by logged in user" });
+	if (!blog.user)
+		return res.status(401).json({ error: "user not logged in" });
 
 	blog.title = req.body.title;
 	blog.author = req.body.author;
