@@ -11,7 +11,7 @@ const Blog = ({ user, blog, handleLike, handleDelete }) => {
 	};
 
 	const deleteButton = () => {
-		if (user.id === blog.user.id)
+		if (user?.id === blog.user.id)
 			return <button onClick={() => handleDelete(blog)}>remove</button>;
 	};
 

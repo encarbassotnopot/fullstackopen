@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import Blog from "./components/Blog";
+import BlogList from "./components/BlogList";
 import LoginForm from "./components/LoginForm";
 import AddBlog from "./components/AddBlog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 const App = () => {
 	const [blogs, setBlogs] = useState([]);
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
 	const [user, setUser] = useState(null);
 	const [notification, setNotification] = useState(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -32,24 +32,24 @@ const App = () => {
 		}
 	}, []);
 
-	const handleLogin = async (event) => {
-		event.preventDefault();
+	const handleLogin = async (username, password) => {
 		try {
 			const user = await loginService.login({ username, password });
 			blogService.setToken(user.token);
 			window.localStorage.setItem("loggedBlogUser", JSON.stringify(user));
 
 			setUser(user);
-			setUsername("");
-			setPassword("");
+			return "ok";
 		} catch {
 			setNotification({ type: "error", text: "wrong credentials" });
+			return "ko";
 		}
 	};
 
 	const handleLogout = () => {
 		window.localStorage.removeItem("loggedBlogUser");
 		setUser(null);
+		navigate("/");
 	};
 
 	const createBlog = async (blog) => {
@@ -95,43 +95,51 @@ const App = () => {
 			}
 	};
 
-	if (user === null) {
-		return (
-			<div>
-				<Notification content={notification} />
-				<h2>Log in to application</h2>
-				<LoginForm
-					username={username}
-					setUsername={setUsername}
-					password={password}
-					setPassword={setPassword}
-					handleLogin={handleLogin}
-				/>
-			</div>
-		);
-	}
+	const padding = {
+		padding: 5,
+	};
 
 	return (
-		<div>
+		<>
+			<div>
+				<Link style={padding} to="/">
+					blogs
+				</Link>
+				{/* <Link style={padding} to="/create">
+					new blog
+				</Link> */}
+				{user ? (
+					<button onClick={handleLogout}>logout</button>
+				) : (
+					<Link style={padding} to="/login">
+						login
+					</Link>
+				)}
+			</div>
+
 			<Notification content={notification} />
-			<h2>blogs</h2>
-			<p>
-				{user.name} logged in{" "}
-				<button onClick={handleLogout}>logout</button>
-			</p>
-			<AddBlog createBlog={createBlog} />
-			{blogs
-				.sort((a, b) => b.likes - a.likes)
-				.map((blog) => (
-					<Blog
-						key={blog.id}
-						user={user}
-						blog={blog}
-						handleLike={handleLike}
-						handleDelete={handleDelete}
-					/>
-				))}
-		</div>
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<BlogList
+							user={user}
+							blogs={blogs}
+							handleLike={handleLike}
+							handleDelete={handleDelete}
+						/>
+					}
+				/>
+				<Route
+					path="/create"
+					element={<AddBlog createBlog={createBlog} />}
+				/>
+				<Route
+					path="/login"
+					element={<LoginForm loginUser={handleLogin} />}
+				/>
+			</Routes>
+		</>
 	);
 };
 
