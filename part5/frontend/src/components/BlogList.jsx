@@ -1,14 +1,6 @@
 import Blog from "./Blog";
 import { Link } from "react-router-dom";
-{
-	/* <Blog
-						key={blog.id}
-						user={user}
-						blog={blog}
-						handleLike={handleLike}
-						handleDelete={handleDelete}
-					/> */
-}
+
 const BlogList = ({ blogs }) => {
 	return (
 		<>
