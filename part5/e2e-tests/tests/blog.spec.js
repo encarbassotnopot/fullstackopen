@@ -11,10 +11,13 @@ describe("Blog app", () => {
 				password: "password",
 			},
 		});
-
-		await page.goto("/");
 	});
+
 	describe("Login", () => {
+		beforeEach(async ({ page, request }) => {
+			await page.goto("/login");
+		});
+
 		test("form is shown", async ({ page }) => {
 			await expect(page.getByText("Log in to application")).toBeVisible();
 
@@ -25,8 +28,10 @@ describe("Blog app", () => {
 		test("succeeds with correct credentials", async ({ page }) => {
 			await helper.loginWith(page, "testuser", "password");
 
-			const currentUser = await page.getByText("my test user logged in");
-			await expect(currentUser).toBeVisible();
+			const logout = await page.getByRole("button", {
+				name: "logout",
+			});
+			await expect(logout).toBeVisible();
 		});
 
 		test("fails with wrong credentials", async ({ page }) => {
@@ -40,6 +45,7 @@ describe("Blog app", () => {
 	describe("When logged in", () => {
 		beforeEach(async ({ page }) => {
 			await helper.loginWith(page, "testuser", "password");
+			await page.waitForURL("/");
 		});
 
 		test("a new blog can be created", async ({ page }) => {
@@ -56,9 +62,9 @@ describe("Blog app", () => {
 				"a new blog my title by the author added"
 			);
 
-			const blog = await page.locator(".blog-item");
+			const blog = await page.getByRole("listitem");
 			await expect(blog).toBeVisible();
-			await expect(blog).toHaveText(/my title the author/);
+			await expect(blog).toHaveText("my title by the author");
 		});
 
 		test("a blog entry can be liked", async ({ page }) => {
@@ -68,20 +74,22 @@ describe("Blog app", () => {
 				"the author",
 				"example.com"
 			);
+			await page.waitForURL("/");
 
 			await page
-				.locator(".blog-item")
-				.getByRole("button")
-				.getByText("view")
+				.getByRole("link", { name: "my title by the author" })
 				.click();
+			await page.waitForURL("/blogs/*");
 
-			await page
-				.locator(".blog-item")
-				.getByRole("button")
-				.getByText("like")
-				.click();
+			const responsePromise = page.waitForResponse(
+				(response) =>
+					response.status() === 200 &&
+					response.request().method() === "PUT"
+			);
+			await page.getByRole("button").getByText("like").click();
+			await responsePromise;
 
-			await expect(page.locator(".blog-item")).toHaveText(/Likes 1/);
+			await expect(page.getByText(/Likes 1/)).toBeVisible();
 		});
 
 		test("a blog entry can be deleted", async ({ page }) => {
@@ -91,22 +99,20 @@ describe("Blog app", () => {
 				"the author",
 				"example.com"
 			);
+			await page.waitForURL("/");
 
 			await page
-				.locator(".blog-item")
-				.getByRole("button")
-				.getByText("view")
+				.getByRole("link", { name: "my title by the author" })
 				.click();
+			await page.waitForURL("/blogs/*");
 
 			page.on("dialog", async (dialog) => await dialog.accept());
+			await page.getByRole("button").getByText("remove").click();
+			await page.waitForURL("/");
 
-			await page
-				.locator(".blog-item")
-				.getByRole("button")
-				.getByText("remove")
-				.click();
-
-			await expect(page.locator(".blog-item")).not.toBeVisible();
+			await expect(
+				page.getByRole("link", { name: "my title by the author" })
+			).not.toBeVisible();
 		});
 
 		test("only a blog's creator can delete it", async ({
@@ -130,16 +136,12 @@ describe("Blog app", () => {
 				},
 			});
 
-			await helper.loginWith(page, "testuser2", "password");
-
 			await page
-				.locator(".blog-item")
-				.getByRole("button")
-				.getByText("view")
+				.getByRole("link", { name: "my title by the author" })
 				.click();
+			await page.waitForURL("/blogs/*");
 
 			const deleteButton = await page
-				.locator(".blog-item")
 				.getByRole("button")
 				.getByText("delete");
 
@@ -170,10 +172,13 @@ describe("Blog app", () => {
 			await helper.likeNoteByTitle(page, "second note", 1);
 			await helper.likeNoteByTitle(page, "third note", 3);
 
-			const entries = await page.locator(".blog-item").all();
-			expect(entries[0]).toContainText("third note");
-			expect(entries[1]).toContainText("first note");
-			expect(entries[2]).toContainText("second note");
+			await page.goto("/");
+
+			await expect(page.locator("ul > li")).toContainText([
+				"third note",
+				"first note",
+				"second note",
+			]);
 		});
 	});
 });
