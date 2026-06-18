@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 
 const anecdotesAtStart = [
 	"If it hurts, do it more often",
@@ -19,6 +20,7 @@ const asObject = (anecdote) => ({
 
 const useAnecdoteStore = create((set) => ({
 	anecdotes: anecdotesAtStart.map(asObject),
+	filter: "",
 	actions: {
 		vote: (id) =>
 			set((state) => ({
@@ -32,9 +34,18 @@ const useAnecdoteStore = create((set) => ({
 			set((state) => ({
 				anecdotes: state.anecdotes.concat(asObject(content)),
 			})),
+		updateFilter: (text) =>
+			set(() => ({
+				filter: text,
+			})),
 	},
 }));
 
-export const useAnecdotes = () => useAnecdoteStore((state) => state.anecdotes);
+export const useAnecdotes = () =>
+	useAnecdoteStore(
+		useShallow(({ anecdotes, filter }) =>
+			anecdotes.filter((a) => a.content.includes(filter))
+		)
+	);
 export const useAnecdoteActions = () =>
 	useAnecdoteStore((state) => state.actions);
