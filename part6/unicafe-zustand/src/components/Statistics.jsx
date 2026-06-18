@@ -1,4 +1,4 @@
-import { useFeedback } from "./store";
+import { useFeedback } from "../store";
 
 const Statistics = () => {
 	const { good, bad, neutral } = useFeedback();

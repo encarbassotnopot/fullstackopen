@@ -1,4 +1,4 @@
-import { useFeedbackControls } from "./store";
+import { useFeedbackControls } from "../store";
 
 const Buttons = () => {
 	const { addGood, addBad, addNeutral } = useFeedbackControls();
