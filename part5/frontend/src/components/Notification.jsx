@@ -1,6 +1,9 @@
+import { Alert } from "@mui/material";
+
 const Notification = ({ content }) => {
 	if (!content) return null;
-	return <div className={`notification ${content.type}`}>{content.text}</div>;
+	const severity = content.type === "ok" ? "success" : "error";
+	return <Alert severity={severity}>{content.text}</Alert>;
 };
 
 export default Notification;

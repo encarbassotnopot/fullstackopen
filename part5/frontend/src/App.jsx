@@ -7,7 +7,7 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom";
 import Blog from "./components/Blog";
-import { Container } from "@mui/material";
+import { AppBar, Container, Toolbar, Button, Typography } from "@mui/material";
 
 const App = () => {
 	const [blogs, setBlogs] = useState([]);
@@ -102,29 +102,53 @@ const App = () => {
 		navigate("/");
 	};
 
-	const padding = {
-		padding: 5,
-	};
+	const style = { "&:hover": { bgcolor: "rgba(255,255,255,0.3)" } };
 
 	return (
 		<Container>
-			<div>
-				<Link style={padding} to="/">
-					blogs
-				</Link>
-				{user && (
-					<Link style={padding} to="/create">
-						new blog
-					</Link>
-				)}
-				{user ? (
-					<button onClick={handleLogout}>logout</button>
-				) : (
-					<Link style={padding} to="/login">
-						login
-					</Link>
-				)}
-			</div>
+			<AppBar position="static">
+				<Toolbar>
+					<Typography
+						variant="h6"
+						component="div"
+						sx={{ flexGrow: 1 }}
+					>
+						BlogApp
+					</Typography>
+					<Button color="inherit" component={Link} to="/" sx={style}>
+						blogs
+					</Button>
+					{user && (
+						<Button
+							color="inherit"
+							component={Link}
+							to="/create"
+							sx={style}
+						>
+							new blog
+						</Button>
+					)}
+					{user ? (
+						<Button
+							color="inherit"
+							component={Link}
+							onClick={handleLogout}
+							sx={style}
+						>
+							logout
+						</Button>
+					) : (
+						<Button
+							color="inherit"
+							component={Link}
+							to="/login"
+							sx={style}
+						>
+							login
+						</Button>
+					)}
+				</Toolbar>
+			</AppBar>
 
 			<Notification content={notification} />
 			<Routes>
