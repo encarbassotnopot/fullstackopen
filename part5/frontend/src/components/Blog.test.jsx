@@ -17,46 +17,43 @@ describe("a blog entry", () => {
 		user: user,
 	};
 
-	test("shows only title and author by default", () => {
-		render(<Blog blog={blog} user={user} />);
+	test("shows no buttons when not logged in", () => {
+		render(<Blog blog={blog} user={null} />);
 
 		const title = screen.queryByText(blog.title);
 		const author = screen.queryByText(blog.author);
 		const url = screen.queryByText(blog.url);
 		const likes = screen.queryByText(blog.likes);
 
+		const likeButton = screen.queryByText("like");
+		const deleteButton = screen.queryByText("remove");
+
 		expect(title).toBeDefined();
 		expect(author).toBeDefined();
-		expect(url).toBeNull();
-		expect(likes).toBeNull();
-	});
-
-	test("can be expanded to show url and number of likes", async () => {
-		render(<Blog blog={blog} user={user} />);
-
-		const testAgent = userEvent.setup();
-		const button = screen.getByText("view");
-		await testAgent.click(button);
-
-		const url = screen.queryByText(blog.url);
-		const likes = screen.queryByText(`Likes ${blog.likes}`);
-
 		expect(url).toBeDefined();
 		expect(likes).toBeDefined();
+
+		expect(likeButton).toBeNull();
+		expect(deleteButton).toBeNull();
 	});
 
-	test("has a like button that can be clicked twice", async () => {
-		const mockHandler = vi.fn();
+	test("shows like button when logged in as a user other than the author", async () => {
+		render(<Blog blog={blog} user={{ ...user, id: 456 }} />);
 
-		render(<Blog blog={blog} user={user} handleLike={mockHandler} />);
-
-		const testAgent = userEvent.setup();
-		const viewButton = screen.getByText("view");
-		await testAgent.click(viewButton);
 		const likeButton = screen.getByText("like");
-		await testAgent.click(likeButton);
-		await testAgent.click(likeButton);
+		const deleteButton = screen.queryByText("remove");
 
-		expect(mockHandler.mock.calls).toHaveLength(2);
+		expect(likeButton).toBeDefined();
+		expect(deleteButton).toBeNull();
+	});
+
+	test("shows both like and delete button when logged as the author", async () => {
+		render(<Blog blog={blog} user={user} />);
+
+		const likeButton = screen.getByText("like");
+		const deleteButton = screen.getByText("remove");
+
+		expect(likeButton).toBeDefined();
+		expect(deleteButton).toBeDefined();
 	});
 });
