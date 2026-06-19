@@ -3,10 +3,10 @@ import { useAnecdoteActions } from "../store";
 const AnecdoteForm = () => {
 	const { create } = useAnecdoteActions();
 
-	const handleCreate = (e) => {
+	const handleCreate = async (e) => {
 		e.preventDefault();
 		const content = e.target.anecdote.value;
-		create(content);
+		await create(content);
 		e.target.reset();
 	};
 
