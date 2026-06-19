@@ -18,24 +18,22 @@ const AnecdoteList = () => {
 
 	return (
 		<div>
-			{anecdotes
-				.toSorted((a, b) => b.votes - a.votes)
-				.map((anecdote) => (
-					<div key={anecdote.id}>
-						<div>{anecdote.content}</div>
-						<div>
-							has {anecdote.votes}
-							<button onClick={() => handleVote(anecdote)}>
-								vote
+			{anecdotes.map((anecdote) => (
+				<div key={anecdote.id}>
+					<div>{anecdote.content}</div>
+					<div>
+						has {anecdote.votes}
+						<button onClick={() => handleVote(anecdote)}>
+							vote
+						</button>
+						{anecdote.votes === 0 && (
+							<button onClick={() => handleDelete(anecdote)}>
+								delete
 							</button>
-							{anecdote.votes === 0 && (
-								<button onClick={() => handleDelete(anecdote)}>
-									delete
-								</button>
-							)}
-						</div>
+						)}
 					</div>
-				))}
+				</div>
+			))}
 		</div>
 	);
 };

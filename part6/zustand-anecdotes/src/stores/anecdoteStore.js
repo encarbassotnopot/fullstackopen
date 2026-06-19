@@ -50,8 +50,12 @@ const useAnecdoteStore = create((set) => ({
 export const useAnecdotes = () =>
 	useAnecdoteStore(
 		useShallow(({ anecdotes, filter }) =>
-			anecdotes.filter((a) => a.content.includes(filter))
+			anecdotes
+				.filter((a) => a.content.includes(filter))
+				.toSorted((a, b) => b.votes - a.votes)
 		)
 	);
 export const useAnecdoteActions = () =>
 	useAnecdoteStore((state) => state.actions);
+
+export default useAnecdoteStore;
