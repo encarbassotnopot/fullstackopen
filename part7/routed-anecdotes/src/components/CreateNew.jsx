@@ -18,38 +18,31 @@ const CreateNew = ({ addAnecdote }) => {
 		navigate("/");
 	};
 
+	const handleReset = (e) => {
+		e.preventDefault();
+		content.onReset();
+		author.onReset();
+		info.onReset();
+	};
+
 	return (
 		<div>
 			<h2>create a new anecdote</h2>
 			<form onSubmit={handleSubmit}>
 				<div>
 					content
-					<input
-						name="content"
-						value={content.value}
-						type={content.type}
-						onChange={content.onChange}
-					/>
+					<input name="content" {...content} />
 				</div>
 				<div>
 					author
-					<input
-						name="author"
-						value={author.value}
-						type={author.type}
-						onChange={author.onChange}
-					/>
+					<input name="author" {...author} />
 				</div>
 				<div>
 					url for more info
-					<input
-						name="info"
-						value={info.value}
-						type={info.type}
-						onChange={info.onChange}
-					/>
+					<input name="info" {...info} />
 				</div>
 				<button>create</button>
+				<button onClick={(e) => handleReset(e)}>reset</button>
 			</form>
 		</div>
 	);
