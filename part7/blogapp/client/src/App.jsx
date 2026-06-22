@@ -5,6 +5,7 @@ import AddBlog from "./components/AddBlog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import persistentService from "./services/persistentUser";
 import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom";
 import Blog from "./components/Blog";
 import { AppBar, Container, Toolbar, Button, Typography } from "@mui/material";
@@ -27,12 +28,8 @@ const App = () => {
 	}, [notification]);
 
 	useEffect(() => {
-		const loggedUserJSON = window.localStorage.getItem("loggedBlogUser");
-		if (loggedUserJSON) {
-			const user = JSON.parse(loggedUserJSON);
-			blogService.setToken(user.token);
-			setUser(user);
-		}
+		const user = persistentService.getUser();
+		if (user) setUser(user);
 	}, []);
 
 	const match = useMatch("/blogs/:id");
@@ -42,7 +39,7 @@ const App = () => {
 		try {
 			const user = await loginService.login({ username, password });
 			blogService.setToken(user.token);
-			window.localStorage.setItem("loggedBlogUser", JSON.stringify(user));
+			persistentService.saveUser(user);
 
 			setUser(user);
 			return "ok";
@@ -53,7 +50,7 @@ const App = () => {
 	};
 
 	const handleLogout = () => {
-		window.localStorage.removeItem("loggedBlogUser");
+		persistentService.removeUser("loggedBlogUser");
 		setUser(null);
 		navigate("/");
 	};
