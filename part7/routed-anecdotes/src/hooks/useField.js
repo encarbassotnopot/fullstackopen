@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useField = (type) => {
+const useField = (type) => {
 	const [value, setValue] = useState("");
 
 	const onChange = (event) => {
@@ -19,6 +19,4 @@ export const useField = (type) => {
 	};
 };
 
-export const useAnotherHook = () => {
-	// ...
-};
+export default useField;
