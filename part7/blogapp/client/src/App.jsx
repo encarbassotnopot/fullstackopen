@@ -8,6 +8,7 @@ import loginService from "./services/login";
 import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom";
 import Blog from "./components/Blog";
 import { AppBar, Container, Toolbar, Button, Typography } from "@mui/material";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const App = () => {
 	const [blogs, setBlogs] = useState([]);
@@ -152,7 +153,14 @@ const App = () => {
 
 			<Notification content={notification} />
 			<Routes>
-				<Route path="/" element={<BlogList blogs={blogs} />} />
+				<Route
+					path="/"
+					element={
+						<ErrorBoundary>
+							<BlogList blogs={blogs} />
+						</ErrorBoundary>
+					}
+				/>
 				<Route
 					path="/blogs/:id"
 					element={
@@ -166,11 +174,19 @@ const App = () => {
 				/>
 				<Route
 					path="/create"
-					element={<AddBlog createBlog={createBlog} />}
+					element={
+						<ErrorBoundary>
+							<AddBlog createBlog={createBlog} />
+						</ErrorBoundary>
+					}
 				/>
 				<Route
 					path="/login"
-					element={<LoginForm loginUser={handleLogin} />}
+					element={
+						<ErrorBoundary>
+							<LoginForm loginUser={handleLogin} />
+						</ErrorBoundary>
+					}
 				/>
 			</Routes>
 		</Container>
