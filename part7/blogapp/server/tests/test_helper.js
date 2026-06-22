@@ -1,0 +1,80 @@
+const Blog = require("../models/blog");
+const User = require("../models/user");
+
+const initialBlogs = [
+	{
+		title: "React patterns",
+		author: "Michael Chan",
+		url: "https://reactpatterns.com/",
+		likes: 7,
+	},
+	{
+		title: "Canonical string reduction",
+		author: "Edsger W. Dijkstra",
+		url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+		likes: 12,
+	},
+	{
+		title: "First class tests",
+		author: "Robert C. Martin",
+		url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html",
+		likes: 10,
+	},
+	{
+		title: "TDD harms architecture",
+		author: "Robert C. Martin",
+		url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+		likes: 0,
+	},
+	{
+		title: "Type wars",
+		author: "Robert C. Martin",
+		url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+		likes: 2,
+	},
+];
+
+const singleBlog = {
+	title: "Go To Statement Considered Harmful",
+	author: "Edsger W. Dijkstra",
+	url: "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
+	likes: 5,
+	user: "0",
+};
+
+const nonExistingId = async () => {
+	const blog = await new Blog({
+		title: "title",
+		url: "url.example",
+		user: (await usersInDb())[0].id,
+	});
+	await blog.save();
+	await blog.deleteOne();
+
+	return blog._id.toString();
+};
+
+const blogsInDb = async () => {
+	const blogs = await Blog.find({}).populate("user", {
+		username: 1,
+		name: 1,
+	});
+	return blogs.map((b) => b.toJSON());
+};
+
+const usersInDb = async () => {
+	const users = await User.find({}).populate("blogs", {
+		title: 1,
+		author: 1,
+		url: 1,
+	});
+	return users.map((u) => u.toJSON());
+};
+
+module.exports = {
+	initialBlogs,
+	singleBlog,
+	nonExistingId,
+	blogsInDb,
+	usersInDb,
+};
