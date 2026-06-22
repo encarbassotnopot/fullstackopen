@@ -13,6 +13,8 @@
 		"init": "npm install --prefix client; npm install --prefix client"
 	},
 	"devDependencies": {
-		"concurrently": "^8.0.0"
+		"concurrently": "^8.0.0",
+		"eslint-config-prettier": "^10.1.8",
+		"prettier": "3.8.4"
 	}
 }

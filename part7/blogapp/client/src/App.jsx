@@ -188,6 +188,7 @@ const App = () => {
 						</ErrorBoundary>
 					}
 				/>
+				<Route path="*" element={<h2>route not found</h2>} />
 			</Routes>
 		</Container>
 	);
